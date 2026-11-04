@@ -1,0 +1,92 @@
+{
+  "version": 2,
+  "config": {
+    "sample_questions": [
+      {"id": "10000000000000000000000000000001", "question": ["How many suspected duplicate claims are there, and how much did we pay on them?"]},
+      {"id": "10000000000000000000000000000002", "question": ["Which clinics have the most double submissions?"]},
+      {"id": "10000000000000000000000000000003", "question": ["What is the approval rate by diagnosis category?"]},
+      {"id": "10000000000000000000000000000004", "question": ["What is the average processing time by submission channel?"]},
+      {"id": "10000000000000000000000000000005", "question": ["What is the loss ratio by plan tier for 2025?"]},
+      {"id": "10000000000000000000000000000006", "question": ["Show duplicates for household PH0001."]}
+    ]
+  },
+  "data_sources": {
+    "tables": [
+      {"identifier": "YOUR_CATALOG.YOUR_SCHEMA.claim_payments"},
+      {"identifier": "YOUR_CATALOG.YOUR_SCHEMA.claims"},
+      {"identifier": "YOUR_CATALOG.YOUR_SCHEMA.pets"},
+      {"identifier": "YOUR_CATALOG.YOUR_SCHEMA.policies"},
+      {"identifier": "YOUR_CATALOG.YOUR_SCHEMA.policyholders"},
+      {"identifier": "YOUR_CATALOG.YOUR_SCHEMA.vet_clinics"}
+    ]
+  },
+  "instructions": {
+    "text_instructions": [
+      {
+        "id": "30000000000000000000000000000001",
+        "content": ["This agent analyzes synthetic pet insurance claim data. All amounts are USD."]
+      },
+      {
+        "id": "30000000000000000000000000000002",
+        "content": ["Duplicate (double) claim = a second or later claim for the same vet visit: same pet_id, clinic_id, visit_date. The earliest submitted claim is the original. Do NOT rely on invoice_number or claimed_amount; resubmissions reuse, suffix, or change them. Two different pets from one household on the same day are NOT duplicates."]
+      },
+      {
+        "id": "30000000000000000000000000000003",
+        "content": ["Leakage = suspected duplicate with status Paid. Caught = denied with reason 'Duplicate claim'. Open = Submitted or In Review. Decided = Approved, Paid, or Denied. Approval and denial rates use decided claims only and should be shown as percentages. Processing time = average days from submitted_date to decision_date. Reimbursement rate is a decimal; show it as a percentage."]
+      }
+    ],
+    "example_question_sqls": [
+      {
+        "id": "20000000000000000000000000000001",
+        "question": ["How many suspected duplicate claims are there, and how much did we pay on them?"],
+        "sql": [
+          "WITH ranked AS (\n",
+          "  SELECT c.*,\n",
+          "    ROW_NUMBER() OVER (PARTITION BY pet_id, clinic_id, visit_date ORDER BY submitted_date, claim_id) AS visit_rank\n",
+          "  FROM YOUR_CATALOG.YOUR_SCHEMA.claims c\n",
+          ")\n",
+          "SELECT COUNT(*) AS suspected_duplicates,\n",
+          "  COUNT_IF(d.claim_status = 'Paid') AS duplicates_paid,\n",
+          "  ROUND(SUM(p.payment_amount), 2) AS leakage_usd\n",
+          "FROM ranked d\n",
+          "LEFT JOIN YOUR_CATALOG.YOUR_SCHEMA.claim_payments p USING (claim_id)\n",
+          "WHERE visit_rank > 1\n"
+        ]
+      },
+      {
+        "id": "20000000000000000000000000000002",
+        "question": ["Which clinics have the most double submissions?"],
+        "sql": [
+          "WITH ranked AS (\n",
+          "  SELECT c.*,\n",
+          "    ROW_NUMBER() OVER (PARTITION BY pet_id, clinic_id, visit_date ORDER BY submitted_date, claim_id) AS visit_rank\n",
+          "  FROM YOUR_CATALOG.YOUR_SCHEMA.claims c\n",
+          ")\n",
+          "SELECT v.clinic_name, COUNT(*) AS suspected_duplicates\n",
+          "FROM ranked d\n",
+          "JOIN YOUR_CATALOG.YOUR_SCHEMA.vet_clinics v USING (clinic_id)\n",
+          "WHERE visit_rank > 1\n",
+          "GROUP BY v.clinic_name\n",
+          "ORDER BY suspected_duplicates DESC\n",
+          "LIMIT 10\n"
+        ]
+      },
+      {
+        "id": "20000000000000000000000000000003",
+        "question": ["Show duplicates for household PH0001."],
+        "sql": [
+          "WITH ranked AS (\n",
+          "  SELECT c.*, p.policyholder_id,\n",
+          "    ROW_NUMBER() OVER (PARTITION BY c.pet_id, c.clinic_id, c.visit_date ORDER BY c.submitted_date, c.claim_id) AS visit_rank\n",
+          "  FROM YOUR_CATALOG.YOUR_SCHEMA.claims c\n",
+          "  JOIN YOUR_CATALOG.YOUR_SCHEMA.pets p USING (pet_id)\n",
+          "  WHERE p.policyholder_id = 'PH0001'\n",
+          ")\n",
+          "SELECT claim_id, pet_id, clinic_id, visit_date, claim_status\n",
+          "FROM ranked\n",
+          "WHERE visit_rank > 1\n"
+        ]
+      }
+    ]
+  }
+}

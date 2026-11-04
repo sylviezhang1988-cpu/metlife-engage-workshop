@@ -1,0 +1,51 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 896 >>
+stream
+BT
+/F1 16 Tf
+50 750 Td (MAPLE EMERGENCY VETS  ?  CLINIC INVOICE) Tj
+/F1 10 Tf
+0 -14 Td (Invoice number: INV-ME-9904) Tj
+0 -14 Td (Invoice date: 2026-10-01) Tj
+0 -14 Td (Visit date: 2026-10-01) Tj
+0 -14 Td (Patient: Bella \(canine, French Bulldog\)) Tj
+0 -14 Td (Client: Elena Ruiz) Tj
+0 -14 Td (Claim number: CLM-PET-00088) Tj
+0 -14 Td (Policy number: POL-77210) Tj
+0 -14 Td (Diagnosis: Radius/ulna fracture) Tj
+0 -14 Td (Line items:) Tj
+0 -14 Td (  1. Emergency exam                            210.00) Tj
+0 -14 Td (  2. Radiographs \(forelimb\)                    340.00) Tj
+0 -14 Td (  3. Splint / bandage                          280.00) Tj
+0 -14 Td (  4. Pain medication / NSAID                   120.00) Tj
+0 -14 Td (  5. After-hours fee                           200.00) Tj
+0 -14 Td (Subtotal: 1,150.00   Tax: 0.00   Total billed: 1,150.00) Tj
+0 -14 Td (Document type: Clinic invoice) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001188 00000 n 
+trailer << /Size 6 /Root 1 0 R >>
+startxref
+1258
+%%EOF

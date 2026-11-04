@@ -1,0 +1,51 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 886 >>
+stream
+BT
+/F1 16 Tf
+50 750 Td (OAK ANIMAL HOSPITAL  ?  CLINIC INVOICE) Tj
+/F1 10 Tf
+0 -14 Td (Invoice number: INV-OA-4412) Tj
+0 -14 Td (Invoice date: 2026-09-12) Tj
+0 -14 Td (Visit date: 2026-09-12) Tj
+0 -14 Td (Patient: Luna \(feline, DSH\)) Tj
+0 -14 Td (Client: Priya Shah) Tj
+0 -14 Td (Claim number: CLM-PET-00021) Tj
+0 -14 Td (Policy number: POL-88421) Tj
+0 -14 Td (Diagnosis: Gastrointestinal illness) Tj
+0 -14 Td (Line items:) Tj
+0 -14 Td (  1. Office exam \(sick\)                         128.00) Tj
+0 -14 Td (  2. CBC / chemistry panel                     214.00) Tj
+0 -14 Td (  3. Subcutaneous fluids                       186.00) Tj
+0 -14 Td (  4. Oral antiemetic / probiotic                94.40) Tj
+0 -14 Td (  5. Hospitalization \(day\)                     220.00) Tj
+0 -14 Td (Subtotal: 842.40   Tax: 0.00   Total billed: 842.40) Tj
+0 -14 Td (Document type: Clinic invoice) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001178 00000 n 
+trailer << /Size 6 /Root 1 0 R >>
+startxref
+1248
+%%EOF
