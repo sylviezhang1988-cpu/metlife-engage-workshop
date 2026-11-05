@@ -19,11 +19,12 @@ If Git folders are blocked, download this repo as a zip, unzip it, and import th
 ## 2. Set up (once)
 
 1. Open `00_setup`. Attach **serverless** compute.
-2. Set widgets:
-   - `catalog`: the catalog you can already use. Leave blank only if you have not been told a name yet. Do not guess.
+2. Run the **first code cell** once. Widgets appear at the top of the notebook.
+3. Set widgets:
+   - `catalog`: the catalog you can already use. Do not leave it blank and do not guess.
    - `schema`: leave `metlife_claims` unless your facilitator says otherwise.
    - `create_schema_if_missing`: `true` (set to `false` only if your schema already exists and you cannot create it).
-3. **Run All** on `00_setup`.
+4. **Run All** on `00_setup` (or run the remaining cells).
 
 If `USE CATALOG`, `USE SCHEMA`, or `CREATE TABLE` fails, stop and ask your facilitator for access before you continue.
 
