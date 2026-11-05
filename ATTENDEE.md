@@ -30,7 +30,7 @@ If `USE CATALOG`, `USE SCHEMA`, or `CREATE TABLE` fails, stop and ask your facil
 
 ## 3. Run in order
 
-Run every notebook after `00_setup`. Each one starts with `%run ./00_setup`, so keep the same catalog and schema widgets.
+Run every notebook after `00_setup`. Each one starts with `%run ./00_setup`, which reuses the catalog and schema you saved in `00_setup`. If a notebook says the catalog is blank, run `00_setup` first.
 
 | # | Notebook | What it does |
 |---|----------|--------------|
