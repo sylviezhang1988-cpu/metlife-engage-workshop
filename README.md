@@ -2,6 +2,8 @@
 
 Hands-on notebooks for the MetLife Engage workshop (Cary · Nov 18). Synthetic pet-insurance claims. Run on **serverless**. Do not create a classic cluster. Do **not** `CREATE CATALOG`.
 
+**Theme:** use AI to build the repeatable process, not to be the process.
+
 ## Get this repo into your workspace
 
 1. In Databricks: **Workspace → Add → Git folder** (or Repos).
@@ -12,6 +14,8 @@ Hands-on notebooks for the MetLife Engage workshop (Cary · Nov 18). Synthetic p
 
 If Git folder is blocked, import the `.ipynb` files from a zip of this repo instead.
 
+If several people share one Git folder, they will overwrite each other’s `.workshop_config.json` — each person should re-set the catalog widget in `00_setup`.
+
 ## Widgets (`00_setup`)
 
 | Widget | What to put |
@@ -20,30 +24,23 @@ If Git folder is blocked, import the `.ipynb` files from a zip of this repo inst
 | `schema` | Defaults to `metlife_claims`; created if you have permission |
 | `create_schema_if_missing` | `true` / `false` |
 
-Other notebooks start with `%run ./00_setup`, so they pick up the same widgets. If `USE` fails, you need `USE CATALOG` / `USE SCHEMA` / `CREATE TABLE` before continuing.
+Other notebooks start with `%run ./00_setup`, so they pick up the same widgets.
 
-## Order
+## Order (5 notebooks)
 
-| File | Purpose |
-|------|---------|
-| `00_setup` | Catalog/schema/volume widgets |
-| `01_generate_synthetic_claims` | Seed data + leakage answer key |
-| `02_metrics_and_anomalies` | Duplicate view, trap query, metric view |
-| `03_genie_agent_and_one` | Agent instructions, benchmark questions, Genie One |
-| `04_genie_code_prompts` | Workspace prompts; CLI is optional |
-| `05_generate_pet_claim_pdfs` | 12 pet-claim PDFs → `claim_docs` volume |
-| `06_hands_on_labs` | Labs A–D |
-| `07_bronze_parse_pdfs` | `read_files` + `ai_parse_document` |
-| `08_silver_extract_classify` | `ai_classify` + `ai_extract` |
-| `09_gold_metrics_and_genie` | Invoice facts, metric view, Genie instructions |
-
-MLflow is not in this pack. AI Functions is PDF ingest only.
+| File | Who | Purpose | Ends with |
+|------|-----|---------|-----------|
+| `00_setup` | Everyone | Catalog / schema / volume + theme | Config saved |
+| `01_build_workshop_data` | Facilitator | Synthetic tables + PDFs + PK/FK | Answer key printed |
+| `02_genie_agent` | Attendees | Genie Agent + Labs A/B | Genie One scheduled |
+| `03_genie_code` | Attendees | Genie Code + Lab C | `flag_duplicate_claims()` job |
+| `04_ai_on_claim_pdfs` | Attendees | Bronze → silver → gold (Lab D) | Gold tables + Genie |
 
 ## Duplicate definition
 
-Same `pet_id + clinic_id + visit_date`, later `submitted_date`. Invoice number is not the key. Sibling pets on the same day are not duplicates.
+Same `pet_id + clinic_id + visit_date`, later `submitted_date`. Invoice number is not the key. Sibling pets on the same day are not duplicates (trap household: **PH0013**).
 
 - **Leakage** = suspected duplicate with status Paid
 - **Caught** = Denied, reason `Duplicate claim`
 
-Lab D planted pair: Max at Pine Vet Clinic on `2026-08-03` (`CLM-PET-00044` / `CLM-PET-00045`).
+PDF planted pair: **Sparky** at Pine Vet Clinic on `2026-08-03` (`CLM-PET-00044` / `CLM-PET-00045`).

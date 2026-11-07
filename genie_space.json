@@ -7,7 +7,7 @@
       {"id": "10000000000000000000000000000003", "question": ["What is the approval rate by diagnosis category?"]},
       {"id": "10000000000000000000000000000004", "question": ["What is the average processing time by submission channel?"]},
       {"id": "10000000000000000000000000000005", "question": ["What is the loss ratio by plan tier for 2025?"]},
-      {"id": "10000000000000000000000000000006", "question": ["Show duplicates for household PH0001."]}
+      {"id": "10000000000000000000000000000006", "question": ["Show duplicates for household PH0013."]}
     ]
   },
   "data_sources": {
@@ -73,14 +73,14 @@
       },
       {
         "id": "20000000000000000000000000000003",
-        "question": ["Show duplicates for household PH0001."],
+        "question": ["Show duplicates for household PH0013."],
         "sql": [
           "WITH ranked AS (\n",
           "  SELECT c.*, p.policyholder_id,\n",
           "    ROW_NUMBER() OVER (PARTITION BY c.pet_id, c.clinic_id, c.visit_date ORDER BY c.submitted_date, c.claim_id) AS visit_rank\n",
           "  FROM YOUR_CATALOG.YOUR_SCHEMA.claims c\n",
           "  JOIN YOUR_CATALOG.YOUR_SCHEMA.pets p USING (pet_id)\n",
-          "  WHERE p.policyholder_id = 'PH0001'\n",
+          "  WHERE p.policyholder_id = 'PH0013'\n",
           ")\n",
           "SELECT claim_id, pet_id, clinic_id, visit_date, claim_status\n",
           "FROM ranked\n",
