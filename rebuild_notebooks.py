@@ -505,6 +505,8 @@ Open = Submitted or In Review. Decided = Approved, Paid, or Denied.
 Approval and denial rates use decided claims only; show as percentages.
 Processing time = average days from submitted_date to decision_date.
 Reimbursement rate is a decimal; show it as a percentage.
+Time windows: this is a fixed synthetic snapshot. "Today" = the latest submitted_date in claims, NOT the current date.
+"Last week" = the 7 days ending on that date; "last 90 days" = the 90 days ending on that date.
 \"\"\"
 print("\\n=== Instructions (paste) ===\\n")
 print(instructions)
@@ -578,7 +580,9 @@ Suggested fail: ask *Show duplicates for household PH0013* on an agent **without
 
 In Genie One, ask:
 
-> Every Monday at 8am, send me last week's suspected duplicate claims, how many were paid, total leakage, and approval rate by diagnosis.
+> Every Monday at 8am, send me suspected duplicate claims from the last 90 days of data, how many were paid, total leakage, and approval rate by diagnosis.
+
+The data is a fixed synthetic snapshot, so "last 90 days" means the 90 days ending on the latest `submitted_date` in `claims` (not today's date). Genie should say so in its answer.
 
 Then **schedule** it. This is the automated outcome for Module 1.
 """

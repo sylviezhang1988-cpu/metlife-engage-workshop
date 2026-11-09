@@ -93,7 +93,9 @@ def generate(today: dt.date | None = None) -> dict[str, list[Row]]:
         )
         tier = random.choices(list(TIERS), [0.3, 0.5, 0.2])[0]
         r, ded, lim, prem = TIERS[tier]
-        start = _rand_date(D("2023-01-01"), D("2024-06-30"))
+        # Policies start across 2024-2026 so claims stay dense through the
+        # latest data window (otherwise "last week" / "last 90 days" is empty).
+        start = _rand_date(D("2024-07-01"), D("2026-07-31"))
         policies.append(
             Row(
                 policy_id=f"POL{i:04d}",
