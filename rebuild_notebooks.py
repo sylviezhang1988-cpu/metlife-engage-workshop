@@ -191,8 +191,10 @@ for name, rows in tables.items():
         ),
         md("## Primary / foreign keys (Genie uses these as joins)"),
         code(
-            """# Informational PK/FK — Genie reads these as suggested joins.
-pk_fk = [
+            """# UC requires PK/FK columns to be NOT NULL before ADD CONSTRAINT.
+# Drop → SET NOT NULL → add PK → add FK. Genie reads these as suggested joins.
+stmts = [
+    # Drop existing (idempotent re-runs)
     "ALTER TABLE policyholders DROP CONSTRAINT IF EXISTS pk_policyholders",
     "ALTER TABLE pets DROP CONSTRAINT IF EXISTS pk_pets",
     "ALTER TABLE policies DROP CONSTRAINT IF EXISTS pk_policies",
@@ -206,12 +208,29 @@ pk_fk = [
     "ALTER TABLE claims DROP CONSTRAINT IF EXISTS fk_claims_pet",
     "ALTER TABLE claims DROP CONSTRAINT IF EXISTS fk_claims_clinic",
     "ALTER TABLE claim_payments DROP CONSTRAINT IF EXISTS fk_payments_claim",
+    # PK columns NOT NULL
+    "ALTER TABLE policyholders ALTER COLUMN policyholder_id SET NOT NULL",
+    "ALTER TABLE pets ALTER COLUMN pet_id SET NOT NULL",
+    "ALTER TABLE policies ALTER COLUMN policy_id SET NOT NULL",
+    "ALTER TABLE vet_clinics ALTER COLUMN clinic_id SET NOT NULL",
+    "ALTER TABLE claims ALTER COLUMN claim_id SET NOT NULL",
+    "ALTER TABLE claim_payments ALTER COLUMN payment_id SET NOT NULL",
+    # FK columns NOT NULL
+    "ALTER TABLE pets ALTER COLUMN policyholder_id SET NOT NULL",
+    "ALTER TABLE policies ALTER COLUMN pet_id SET NOT NULL",
+    "ALTER TABLE policies ALTER COLUMN policyholder_id SET NOT NULL",
+    "ALTER TABLE claims ALTER COLUMN policy_id SET NOT NULL",
+    "ALTER TABLE claims ALTER COLUMN pet_id SET NOT NULL",
+    "ALTER TABLE claims ALTER COLUMN clinic_id SET NOT NULL",
+    "ALTER TABLE claim_payments ALTER COLUMN claim_id SET NOT NULL",
+    # Primary keys
     "ALTER TABLE policyholders ADD CONSTRAINT pk_policyholders PRIMARY KEY (policyholder_id)",
     "ALTER TABLE pets ADD CONSTRAINT pk_pets PRIMARY KEY (pet_id)",
     "ALTER TABLE policies ADD CONSTRAINT pk_policies PRIMARY KEY (policy_id)",
     "ALTER TABLE vet_clinics ADD CONSTRAINT pk_vet_clinics PRIMARY KEY (clinic_id)",
     "ALTER TABLE claims ADD CONSTRAINT pk_claims PRIMARY KEY (claim_id)",
     "ALTER TABLE claim_payments ADD CONSTRAINT pk_claim_payments PRIMARY KEY (payment_id)",
+    # Foreign keys
     "ALTER TABLE pets ADD CONSTRAINT fk_pets_policyholder FOREIGN KEY (policyholder_id) REFERENCES policyholders(policyholder_id)",
     "ALTER TABLE policies ADD CONSTRAINT fk_policies_pet FOREIGN KEY (pet_id) REFERENCES pets(pet_id)",
     "ALTER TABLE policies ADD CONSTRAINT fk_policies_policyholder FOREIGN KEY (policyholder_id) REFERENCES policyholders(policyholder_id)",
@@ -220,12 +239,13 @@ pk_fk = [
     "ALTER TABLE claims ADD CONSTRAINT fk_claims_clinic FOREIGN KEY (clinic_id) REFERENCES vet_clinics(clinic_id)",
     "ALTER TABLE claim_payments ADD CONSTRAINT fk_payments_claim FOREIGN KEY (claim_id) REFERENCES claims(claim_id)",
 ]
-for stmt in pk_fk:
+for stmt in stmts:
     try:
         spark.sql(stmt)
+        print("ok:", stmt)
     except Exception as e:
-        print("skip:", stmt.split()[2] if "CONSTRAINT" in stmt else stmt[:40], "→", e)
-print("PK/FK applied (best-effort).")
+        print("skip:", stmt, "→", e)
+print("PK/FK applied.")
 """
         ),
         md("## Table comments"),
@@ -450,13 +470,19 @@ ORDER BY 1
 2. Add tables (run the next cell for the exact names):
    - `claims`, `claim_payments`, `policies`, `pets`, `policyholders`, `vet_clinics`
    - optional: `claims_metrics`, `earned_premium_monthly`
-3. **Joins** — if PK/FKs from notebook 01 did not appear automatically:
-   **Configure → Examples → Add → Joins**, then add:
-   - claims → policies on `policy_id`
-   - claims → pets on `pet_id`
-   - claims → vet_clinics on `clinic_id`
-   - claim_payments → claims on `claim_id`
-   - pets → policyholders on `policyholder_id`
+3. **Joins** — Genie should pick these up from the PK/FKs in notebook 01. If not:
+   **Configure → Joins → Add**, cardinality **Many to One** (many rows on the left join to one row on the right):
+
+   | Many (left) | One (right) | Join key |
+   |---|---|---|
+   | `claims` | `policies` | `policy_id` |
+   | `claims` | `pets` | `pet_id` |
+   | `claims` | `vet_clinics` | `clinic_id` |
+   | `claim_payments` | `claims` | `claim_id` |
+   | `pets` | `policyholders` | `policyholder_id` |
+   | `policies` | `pets` | `pet_id` |
+   | `policies` | `policyholders` | `policyholder_id` |
+
 4. Paste **instructions** and **example SQL** from the cells below (self-contained CTEs — Genie cannot see `v_suspected_duplicate_claims` unless you add that view).
 """
         ),
