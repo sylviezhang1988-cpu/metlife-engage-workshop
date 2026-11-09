@@ -444,9 +444,9 @@ ORDER BY 1
 """
         ),
         md(
-            """## Build the Genie space (UI)
+            """## Build the Genie Agent (UI)
 
-1. **New → Genie space**
+1. **New → Genie Agent**
 2. Add tables (run the next cell for the exact names):
    - `claims`, `claim_payments`, `policies`, `pets`, `policyholders`, `vet_clinics`
    - optional: `claims_metrics`, `earned_premium_monthly`
@@ -992,7 +992,7 @@ HAVING count(*) > 1
         md(
             """## Genie on gold tables
 
-**New → Genie space.** Add:
+**New → Genie Agent.** Add:
 
 - `{catalog}.{schema}.gold_clinic_invoices`
 - `{catalog}.{schema}.gold_claim_documents`
