@@ -254,7 +254,7 @@ print("PK/FK applied.")
     "COMMENT ON TABLE claims IS 'One row per submitted claim. Contains some duplicate submissions for the same pet, clinic, and visit date.'",
     "ALTER TABLE claims ALTER COLUMN claim_id COMMENT 'Unique claim ID. A resubmission of the same visit gets a NEW claim_id.'",
     "ALTER TABLE claims ALTER COLUMN invoice_number COMMENT 'Clinic invoice number as submitted; resubmissions may reuse or alter it. Do not treat as a unique key.'",
-    "ALTER TABLE claims ALTER COLUMN pet_id COMMENT 'The pet treated on this visit. Duplicates are same pet_id + clinic_id + visit_date.'",
+    "ALTER TABLE claims ALTER COLUMN pet_id COMMENT 'The pet treated on this visit. FK to pets.pet_id.'",
     "ALTER TABLE claims ALTER COLUMN denial_reason COMMENT 'Populated when claim_status = Denied. Use Duplicate claim for caught resubmissions.'",
     "COMMENT ON TABLE claim_payments IS 'Payouts issued for claims with status Paid. Join to claims on claim_id.'",
     "COMMENT ON TABLE policies IS 'One row per pet insurance policy. reimbursement_rate is a decimal (0.80 = 80%).'",
@@ -494,11 +494,13 @@ for t in [
 ]:
     print(f"  {CATALOG}.{SCHEMA}.{t}")
 
+# Paste pack for the FIRST Genie Agent build. Deliberately omits the sibling-pet
+# rule and the PH0013 example — Lab A is the before/after that adds them.
 instructions = f\"\"\"This agent analyzes synthetic pet insurance claim data. All amounts are USD.
 
 Duplicate (double) claim = a second or later claim for the same vet visit: same pet_id, clinic_id, visit_date.
 The earliest submitted claim is the original. Do NOT rely on invoice_number or claimed_amount;
-resubmissions reuse, suffix, or change them. Two different pets from one household on the same day are NOT duplicates.
+resubmissions reuse, suffix, or change them.
 
 Leakage = suspected duplicate with status Paid. Caught = denied with reason 'Duplicate claim'.
 Open = Submitted or In Review. Decided = Approved, Paid, or Denied.
@@ -508,7 +510,7 @@ Reimbursement rate is a decimal; show it as a percentage.
 Time windows: this is a fixed synthetic snapshot. "Today" = the latest submitted_date in claims, NOT the current date.
 "Last week" = the 7 days ending on that date; "last 90 days" = the 90 days ending on that date.
 \"\"\"
-print("\\n=== Instructions (paste) ===\\n")
+print("\\n=== Instructions (paste) — stop here before Lab A ===\\n")
 print(instructions)
 
 fq = f"{CATALOG}.{SCHEMA}"
@@ -537,23 +539,11 @@ GROUP BY v.clinic_name
 ORDER BY suspected_duplicates DESC
 LIMIT 10
 \"\"\"
-q3 = f\"\"\"WITH ranked AS (
-  SELECT c.*, p.policyholder_id,
-    ROW_NUMBER() OVER (PARTITION BY c.pet_id, c.clinic_id, c.visit_date ORDER BY c.submitted_date, c.claim_id) AS visit_rank
-  FROM {fq}.claims c
-  JOIN {fq}.pets p USING (pet_id)
-  WHERE p.policyholder_id = 'PH0013'
-)
-SELECT claim_id, pet_id, clinic_id, visit_date, claim_status
-FROM ranked
-WHERE visit_rank > 1
-\"\"\"
 print("\\n=== Example SQL 1 — leakage ===\\n")
 print(q1)
 print("\\n=== Example SQL 2 — clinics ===\\n")
 print(q2)
-print("\\n=== Example SQL 3 — trap PH0013 (expect 0 rows) ===\\n")
-print(q3)
+print("\\n(Do not paste a PH0013 example yet — that is Lab A.)")
 """
         ),
         md(
@@ -564,15 +554,39 @@ print(q3)
 3. What is the approval rate by diagnosis category?
 4. What is the average processing time by submission channel?
 5. What is the loss ratio by plan tier for 2025?
-6. **Trap:** Show duplicates for household **PH0013**. Expected: **none** (sibling pets, not duplicates).
+6. **Trap (Lab A):** Show duplicates for household **PH0013**.
 """
         ),
         md(
             """## Your turn — Lab A · Genie Agent (15 min)
 
-Add your own instruction that fixes one wrong answer. Rerun a benchmark question and confirm the answer changed.
+The paste pack above does **not** include the sibling-pet rule. Column comments also do not spell it out — so Genie can invent a household-level key.
 
-Suggested fail: ask *Show duplicates for household PH0013* on an agent **without** the sibling-pet instruction, then add it.
+1. Ask: *Show duplicates for household PH0013.*
+2. If Genie returns sibling pets as duplicates (wrong), add this instruction and re-ask:
+
+   > Two different pets from one household on the same day are NOT duplicates. Duplicate means the same pet_id + clinic_id + visit_date.
+
+3. Confirm the answer is **none**. Optionally paste this example SQL after the fix:
+
+```sql
+WITH ranked AS (
+  SELECT c.*, p.policyholder_id,
+    ROW_NUMBER() OVER (
+      PARTITION BY c.pet_id, c.clinic_id, c.visit_date
+      ORDER BY c.submitted_date, c.claim_id
+    ) AS visit_rank
+  FROM claims c
+  JOIN pets p USING (pet_id)
+  WHERE p.policyholder_id = 'PH0013'
+)
+SELECT claim_id, pet_id, clinic_id, visit_date, claim_status
+FROM ranked
+WHERE visit_rank > 1
+-- expect 0 rows
+```
+
+If Genie already answered none, pick another wrong answer (e.g. it used `invoice_number` as the key) and fix that with an instruction instead.
 """
         ),
         md(
