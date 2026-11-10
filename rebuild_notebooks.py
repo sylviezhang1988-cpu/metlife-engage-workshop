@@ -160,23 +160,22 @@ except Exception as e:
 )
 
 # ---------------------------------------------------------------------------
-# 01_build_workshop_data (facilitator)
+# 01_build_workshop_data
 # ---------------------------------------------------------------------------
 write(
     "01_build_workshop_data.ipynb",
     [
         md(
-            """# 01 · Build workshop data (facilitator)
+            """# 01 · Build workshop data
 
-**Facilitator notebook.** Run once before attendees start (or have them watch you run it).
+Run this once in **your** schema after `00_setup`. It builds the synthetic claims data you will query in the next notebooks.
 
 Creates:
-1. Synthetic claims tables (~700 claims, planted duplicates, PH0013 sibling trap)
+1. Synthetic claims tables (policyholders, pets, policies, claims, payments, clinics, premiums)
 2. PK / FK constraints so Genie can pick up joins
-3. Twelve pet-claim PDFs on the `claim_docs` volume (Sparky / Pine Vet planted pair)
-4. The four `CLM-PET-*` rows inside `claims`, so the PDF duplicate was also **Paid**
+3. Twelve pet-claim PDFs on the `claim_docs` volume
 
-`random.seed(42)` keeps counts stable. Duplicate definition: same `pet_id + clinic_id + visit_date`.
+Re-running this notebook rebuilds your tables and PDFs from scratch. You do not need to edit it.
 """
         ),
         code("%run ./00_setup\n"),
@@ -269,7 +268,7 @@ for stmt in comments:
 print("Comments applied.")
 """
         ),
-        md("## Answer key + duplicate view"),
+        md("## Duplicate view"),
         code(
             """spark.sql(\"\"\"
 CREATE OR REPLACE VIEW v_suspected_duplicate_claims AS
@@ -281,41 +280,7 @@ WITH ranked AS (
 )
 SELECT * FROM ranked WHERE visit_rank > 1
 \"\"\")
-
-print("=== Facilitator answer key ===")
-display(spark.sql(\"\"\"
-SELECT
-  COUNT(*) AS suspected_duplicates,
-  COUNT_IF(d.claim_status = 'Paid') AS duplicates_paid,
-  COUNT_IF(d.claim_status = 'Denied' AND d.denial_reason = 'Duplicate claim') AS duplicates_caught,
-  ROUND(SUM(p.payment_amount), 2) AS leakage_usd
-FROM v_suspected_duplicate_claims d
-LEFT JOIN claim_payments p USING (claim_id)
-\"\"\"))
-
-print("Planted PDF claims in claims table:")
-display(spark.sql(\"\"\"
-SELECT claim_id, pet_id, clinic_id, visit_date, invoice_number, claim_status, claimed_amount
-FROM claims
-WHERE claim_id LIKE 'CLM-PET-%'
-ORDER BY claim_id
-\"\"\"))
-
-print("PH0013 trap check (sibling pets same day — should NOT be duplicates):")
-display(spark.sql(\"\"\"
-SELECT c.claim_id, c.pet_id, p.policyholder_id, c.clinic_id, c.visit_date, c.claim_status
-FROM claims c
-JOIN pets p USING (pet_id)
-WHERE p.policyholder_id = 'PH0013'
-ORDER BY c.visit_date, c.pet_id
-\"\"\"))
-print("Real duplicates for PH0013 (expect 0 rows):")
-display(spark.sql(\"\"\"
-SELECT d.*
-FROM v_suspected_duplicate_claims d
-JOIN pets p USING (pet_id)
-WHERE p.policyholder_id = 'PH0013'
-\"\"\"))
+print("Duplicate view ready.")
 """
         ),
         md("## Generate claim PDFs → volume"),

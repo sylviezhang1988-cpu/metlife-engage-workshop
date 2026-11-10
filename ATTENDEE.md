@@ -7,7 +7,6 @@ Synthetic pet-insurance claims. Five notebooks, run in order on **serverless** c
 - You need a Databricks workspace with **serverless** notebooks enabled.
 - You need an existing **catalog** you can use (`USE CATALOG`). You do **not** create catalogs in this workshop.
 - Do **not** create a classic cluster.
-- Your facilitator should have already run `01_build_workshop_data` (or will run it with you).
 
 ## 1. Get the notebooks (5 min)
 
@@ -37,7 +36,7 @@ Each notebook after `00_setup` starts with `%run ./00_setup`, which reuses the c
 
 | # | Notebook | What you do |
 |---|----------|-------------|
-| 01 | `01_build_workshop_data` | **Facilitator** builds tables + PDFs (watch or skip if already done) |
+| 01 | `01_build_workshop_data` | Build your synthetic tables + PDFs in your schema (run once, before 02) |
 | 02 | `02_genie_agent` | Build Genie Agent, then Lab A (fix an answer) + Lab B (schedule Genie One) |
 | 03 | `03_genie_code` | Genie Code prompts + Lab C (`flag_duplicate_claims` + daily job) |
 | 04 | `04_ai_on_claim_pdfs` | Bronze → silver → gold on claim PDFs (Lab D). Find Sparky’s duplicate |

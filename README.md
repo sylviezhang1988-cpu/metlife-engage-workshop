@@ -31,7 +31,7 @@ Other notebooks start with `%run ./00_setup`, so they pick up the same widgets.
 | File | Who | Purpose | Ends with |
 |------|-----|---------|-----------|
 | `00_setup` | Everyone | Catalog / schema / volume + theme | Config saved |
-| `01_build_workshop_data` | Facilitator | Synthetic tables + PDFs + PK/FK | Answer key printed |
+| `01_build_workshop_data` | Attendees | Synthetic tables + PDFs + PK/FK | Tables + PDFs ready |
 | `02_genie_agent` | Attendees | Genie Agent + Labs A/B | Genie One scheduled |
 | `03_genie_code` | Attendees | Genie Code + Lab C | `flag_duplicate_claims()` job |
 | `04_ai_on_claim_pdfs` | Attendees | Bronze → silver → gold (Lab D) | Gold tables + Genie |
