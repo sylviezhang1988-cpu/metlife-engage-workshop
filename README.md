@@ -4,23 +4,31 @@ Hands-on notebooks for the MetLife Engage workshop (Cary · Nov 18). Synthetic p
 
 **Theme:** use AI to build the repeatable process, not to be the process.
 
+## Facilitator preflight (before the room)
+
+- Catalog `13238_dna_hackathon2026` must be writable from **serverless**, including its managed storage (storage account `sa13238e1sb0102`). `CREATE SCHEMA` / `CREATE VOLUME` alone is not enough — confirm a `saveAsTable` in `01` succeeds.
+- Every attendee catalog you hand out must pass that same serverless storage check.
+- Confirm AI Functions (`ai_parse_document`, `ai_classify`, `ai_extract`) in the workspace region for Lab D.
+
+See `ATTENDEE.md` for the full checklist and the “If something breaks” table.
+
 ## Get this repo into your workspace
 
 1. In Databricks: **Workspace → Add → Git folder** (or Repos).
 2. Paste this repository URL.
 3. Clone onto `main`.
-4. Open `00_setup` and set the **catalog** widget to a catalog you can already `USE`. Schema may stay `metlife_claims`.
+4. Open `00_setup`. Catalog defaults to `13238_dna_hackathon2026`. Schema may stay `metlife_claims`.
 5. Attach **serverless** and Run All on `00_setup`, then continue in order.
 
 If Git folder is blocked, import the `.ipynb` files from a zip of this repo instead.
 
-If several people share one Git folder, they will overwrite each other’s `.workshop_config.json` — each person should re-set the catalog widget in `00_setup`.
+If several people share one Git folder, they will overwrite each other’s `.workshop_config.json` — each person should re-set the schema widget in `00_setup`.
 
 ## Widgets (`00_setup`)
 
 | Widget | What to put |
 |--------|-------------|
-| `catalog` | **Your** existing catalog (blank on purpose — fill it in) |
+| `catalog` | Hardcoded to `13238_dna_hackathon2026` |
 | `schema` | Defaults to `metlife_claims`; created if you have permission |
 | `create_schema_if_missing` | `true` / `false` |
 

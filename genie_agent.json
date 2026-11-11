@@ -12,12 +12,12 @@
   },
   "data_sources": {
     "tables": [
-      {"identifier": "YOUR_CATALOG.YOUR_SCHEMA.claim_payments"},
-      {"identifier": "YOUR_CATALOG.YOUR_SCHEMA.claims"},
-      {"identifier": "YOUR_CATALOG.YOUR_SCHEMA.pets"},
-      {"identifier": "YOUR_CATALOG.YOUR_SCHEMA.policies"},
-      {"identifier": "YOUR_CATALOG.YOUR_SCHEMA.policyholders"},
-      {"identifier": "YOUR_CATALOG.YOUR_SCHEMA.vet_clinics"}
+      {"identifier": "13238_dna_hackathon2026.metlife_claims.claim_payments"},
+      {"identifier": "13238_dna_hackathon2026.metlife_claims.claims"},
+      {"identifier": "13238_dna_hackathon2026.metlife_claims.pets"},
+      {"identifier": "13238_dna_hackathon2026.metlife_claims.policies"},
+      {"identifier": "13238_dna_hackathon2026.metlife_claims.policyholders"},
+      {"identifier": "13238_dna_hackathon2026.metlife_claims.vet_clinics"}
     ]
   },
   "instructions": {
@@ -43,13 +43,13 @@
           "WITH ranked AS (\n",
           "  SELECT c.*,\n",
           "    ROW_NUMBER() OVER (PARTITION BY pet_id, clinic_id, visit_date ORDER BY submitted_date, claim_id) AS visit_rank\n",
-          "  FROM YOUR_CATALOG.YOUR_SCHEMA.claims c\n",
+          "  FROM 13238_dna_hackathon2026.metlife_claims.claims c\n",
           ")\n",
           "SELECT COUNT(*) AS suspected_duplicates,\n",
           "  COUNT_IF(d.claim_status = 'Paid') AS duplicates_paid,\n",
           "  ROUND(SUM(p.payment_amount), 2) AS leakage_usd\n",
           "FROM ranked d\n",
-          "LEFT JOIN YOUR_CATALOG.YOUR_SCHEMA.claim_payments p USING (claim_id)\n",
+          "LEFT JOIN 13238_dna_hackathon2026.metlife_claims.claim_payments p USING (claim_id)\n",
           "WHERE visit_rank > 1\n"
         ]
       },
@@ -60,11 +60,11 @@
           "WITH ranked AS (\n",
           "  SELECT c.*,\n",
           "    ROW_NUMBER() OVER (PARTITION BY pet_id, clinic_id, visit_date ORDER BY submitted_date, claim_id) AS visit_rank\n",
-          "  FROM YOUR_CATALOG.YOUR_SCHEMA.claims c\n",
+          "  FROM 13238_dna_hackathon2026.metlife_claims.claims c\n",
           ")\n",
           "SELECT v.clinic_name, COUNT(*) AS suspected_duplicates\n",
           "FROM ranked d\n",
-          "JOIN YOUR_CATALOG.YOUR_SCHEMA.vet_clinics v USING (clinic_id)\n",
+          "JOIN 13238_dna_hackathon2026.metlife_claims.vet_clinics v USING (clinic_id)\n",
           "WHERE visit_rank > 1\n",
           "GROUP BY v.clinic_name\n",
           "ORDER BY suspected_duplicates DESC\n",
@@ -78,8 +78,8 @@
           "WITH ranked AS (\n",
           "  SELECT c.*, p.policyholder_id,\n",
           "    ROW_NUMBER() OVER (PARTITION BY c.pet_id, c.clinic_id, c.visit_date ORDER BY c.submitted_date, c.claim_id) AS visit_rank\n",
-          "  FROM YOUR_CATALOG.YOUR_SCHEMA.claims c\n",
-          "  JOIN YOUR_CATALOG.YOUR_SCHEMA.pets p USING (pet_id)\n",
+          "  FROM 13238_dna_hackathon2026.metlife_claims.claims c\n",
+          "  JOIN 13238_dna_hackathon2026.metlife_claims.pets p USING (pet_id)\n",
           "  WHERE p.policyholder_id = 'PH0013'\n",
           ")\n",
           "SELECT claim_id, pet_id, clinic_id, visit_date, claim_status\n",

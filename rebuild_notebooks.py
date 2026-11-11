@@ -73,20 +73,20 @@ write(
 ## How to start
 
 1. Run the **next cell** once — widgets appear at the top.
-2. Set **catalog** to an existing catalog you can `USE`. Schema may stay `metlife_claims`.
+2. Catalog is already set to `13238_dna_hackathon2026`. Schema may stay `metlife_claims` (or use your own schema name if several people share the catalog).
 3. Run All (or the remaining cells).
 
-Your catalog and schema are saved next to these notebooks as `.workshop_config.json`, so `01`–`04` reuse them. If several people share one folder, you will overwrite each other’s config — set the widgets again if that happens.
+Your catalog and schema are saved next to these notebooks as `.workshop_config.json`, so `01`–`04` reuse them. If several people share one folder, you will overwrite each other’s config — set the schema widget again if that happens.
 
 - This notebook does **not** create a catalog.
 - Run on **serverless**. Do not create a classic cluster.
 """
         ),
         code(
-            """dbutils.widgets.text("catalog", "")
+            """dbutils.widgets.text("catalog", "13238_dna_hackathon2026")
 dbutils.widgets.text("schema", "metlife_claims")
 dbutils.widgets.dropdown("create_schema_if_missing", "true", ["true", "false"])
-print("Widgets ready — set catalog at the top, then run the next cell.")
+print("Widgets ready — catalog defaults to 13238_dna_hackathon2026. Adjust schema if needed, then run the next cell.")
 """
         ),
         code(
@@ -94,26 +94,24 @@ print("Widgets ready — set catalog at the top, then run the next cell.")
 
 CONFIG = os.path.join(os.getcwd(), ".workshop_config.json")
 
-CATALOG = dbutils.widgets.get("catalog").strip().strip("`")
+CATALOG = dbutils.widgets.get("catalog").strip().strip("`") or "13238_dna_hackathon2026"
 SCHEMA = dbutils.widgets.get("schema").strip().strip("`")
 CREATE_SCHEMA = dbutils.widgets.get("create_schema_if_missing") == "true"
 
-if not CATALOG and os.path.exists(CONFIG):
+if os.path.exists(CONFIG):
     saved = json.load(open(CONFIG))
-    CATALOG = saved.get("catalog", "")
-    SCHEMA = saved.get("schema", SCHEMA)
+    # Catalog is fixed for this workshop; schema can come from a prior run.
+    if not SCHEMA:
+        SCHEMA = saved.get("schema", SCHEMA)
     CREATE_SCHEMA = saved.get("create_schema_if_missing", CREATE_SCHEMA)
     print(f"Using settings saved by 00_setup: {CATALOG}.{SCHEMA}")
 
-IDENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_-]*$")
-assert CATALOG, (
-    "Set the catalog widget at the top of this notebook to an existing catalog you can USE, "
-    "then run again. (Run 00_setup first so 01-04 can reuse it.)"
-)
+IDENT = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_-]*$")
+assert CATALOG, "Catalog must be set (default: 13238_dna_hackathon2026)."
 assert SCHEMA, "Set the schema widget (default metlife_claims is fine)."
 assert IDENT.match(CATALOG) and IDENT.match(SCHEMA), (
     "catalog and schema must be Unity Catalog identifiers "
-    "(start with a letter or underscore; letters, digits, underscore only)."
+    "(letters, digits, underscore, hyphen only)."
 )
 print(f"Target: {CATALOG}.{SCHEMA}")
 """

@@ -5,8 +5,17 @@ Synthetic pet-insurance claims. Five notebooks, run in order on **serverless** c
 ## Before you start
 
 - You need a Databricks workspace with **serverless** notebooks enabled.
-- You need an existing **catalog** you can use (`USE CATALOG`). You do **not** create catalogs in this workshop.
+- You will use catalog **`13238_dna_hackathon2026`** (`USE CATALOG`). You do **not** create catalogs in this workshop.
 - Do **not** create a classic cluster.
+
+### Facilitator pre-event checklist
+
+Confirm these **before** attendees arrive. Metadata-only commands can succeed while data writes still fail.
+
+1. Attendees have `USE CATALOG` on `13238_dna_hackathon2026` and can `CREATE SCHEMA` / `CREATE TABLE` / `CREATE VOLUME` in it.
+2. Catalog managed storage is reachable from **serverless** (egress / NCC). For this catalog that means storage account `sa13238e1sb0102` (`abfss://hackathon2026@sa13238e1sb0102.dfs.core.windows.net/`) is allowed by the workspace serverless network policy — or use a catalog whose storage serverless can reach.
+3. Smoke-test on serverless: `00_setup` → first `saveAsTable` in `01_build_workshop_data` succeeds (not only `CREATE SCHEMA` / `CREATE VOLUME`).
+4. `ai_parse_document`, `ai_classify`, and `ai_extract` are available in the workspace region (needed for notebook `04`).
 
 ## 1. Get the notebooks (5 min)
 
@@ -16,15 +25,15 @@ Synthetic pet-insurance claims. Five notebooks, run in order on **serverless** c
 
 If Git folders are blocked, download this repo as a zip, unzip it, and import the `.ipynb` files into one workspace folder. Keep them together so `%run ./00_setup` still works.
 
-If several people share one folder, you will overwrite each other’s `.workshop_config.json`. Re-set the catalog widget in `00_setup` if that happens.
+If several people share one folder, you will overwrite each other’s `.workshop_config.json`. Re-set the schema widget in `00_setup` if that happens.
 
 ## 2. Set up (once)
 
 1. Open `00_setup`. Attach **serverless** compute.
 2. Run the **first code cell** once. Widgets appear at the top of the notebook.
-3. Set widgets:
-   - `catalog`: the catalog you can already use. Do not leave it blank and do not guess.
-   - `schema`: leave `metlife_claims` unless your facilitator says otherwise.
+3. Confirm widgets:
+   - `catalog`: already set to `13238_dna_hackathon2026` — leave it.
+   - `schema`: leave `metlife_claims`, or use your own schema name if several people share the catalog.
    - `create_schema_if_missing`: `true` (set to `false` only if your schema already exists and you cannot create it).
 4. **Run All** on `00_setup` (or run the remaining cells).
 
@@ -52,8 +61,9 @@ Each notebook after `00_setup` starts with `%run ./00_setup`, which reuses the c
 
 | Symptom | Fix |
 |---------|-----|
-| Catalog or schema permission error | Check the catalog widget. Ask your facilitator for `USE CATALOG` / `CREATE SCHEMA` |
+| Catalog or schema permission error | Confirm catalog is `13238_dna_hackathon2026`. Ask your facilitator for `USE CATALOG` / `CREATE SCHEMA` |
+| `00_setup` ok, but `01` fails on `saveAsTable` with `UNAUTHORIZED_ACCESS` / `403` / “serverless network policy” | Catalog storage is blocked from serverless. Facilitator: allow storage account `sa13238e1sb0102` (or the catalog’s managed storage) in the serverless network policy / NCC, **or** switch to a catalog serverless can reach. Do **not** create a classic cluster. |
 | Notebook can't find `./00_setup` | Keep all notebooks in the same folder |
-| Blank catalog in 02–04 | Re-run `00_setup` first |
+| Wrong catalog/schema in 02–04 | Re-run `00_setup` first |
 | Git folder won't clone | Use the zip fallback in step 1 |
 | Still stuck | Raise your hand. Do not create a cluster to work around it |
