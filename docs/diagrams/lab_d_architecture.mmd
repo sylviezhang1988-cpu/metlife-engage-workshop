@@ -1,0 +1,34 @@
+flowchart LR
+    subgraph UC["Unity Catalog · &lt;catalog&gt;.&lt;schema&gt;"]
+      direction LR
+      subgraph VOL["Volume · claim_docs/pdfs"]
+        PDF[/"12 claim PDFs"/]
+      end
+      subgraph BRZ["Bronze · ai_parse_document"]
+        B1[("bronze_pdf_files")] --> B2[("bronze_parsed_pdfs")] --> B3[("bronze_parsed_text")]
+      end
+      subgraph SLV["Silver · ai_classify + ai_extract"]
+        S1[("silver_claim_documents")] --> S2[("silver_claim_documents_typed")]
+      end
+      subgraph GLD["Gold · SQL + metric view"]
+        G1[("gold_claim_documents")]
+        G2[("gold_clinic_invoices")]
+        G3[("gold_suspected_pdf_duplicates")]
+        G4["gold_pdf_invoice_metrics (metric view)"]
+        G2 --> G3
+        G2 --> G4
+      end
+      PDF -- read_files --> B1
+      B3 --> S1
+      S2 --> G1
+      S2 --> G2
+    end
+    GLD --> GENIE["Genie Agent"]
+    GENIE <--> USER["Claims analyst"]
+
+    subgraph COMP["Compute"]
+      AIF["AI Functions inference (Databricks-managed, billed per call)"]
+      NB["Serverless notebook 04_ai_on_claim_pdfs"]
+    end
+    AIF -.-> BRZ
+    AIF -.-> SLV
